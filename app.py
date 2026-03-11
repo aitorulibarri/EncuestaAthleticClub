@@ -13,6 +13,16 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 def favicon():
     return '', 204
 
+# DEBUG: ver variables de entorno (temporal)
+@app.route('/debug')
+def debug_env():
+    env_vars = {k: v for k, v in os.environ.items() if 'POSTGRES' in k or 'DATABASE' in k or 'STORAGE' in k}
+    return {
+        'USE_PG': USE_PG,
+        'DATABASE_URL': DATABASE_URL[:50] + '...' if DATABASE_URL else None,
+        'postgres_vars': env_vars
+    }
+
 # Detecta si estamos en producción (PostgreSQL) o local (SQLite)
 # Vercel Postgres crea: POSTGRES_URL, POSTGRES_USER, POSTGRES_HOST, etc.
 # También puede crear: DATABASE_URL o STORAGE_URL
