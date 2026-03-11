@@ -112,22 +112,36 @@ def init_db():
         row = fetchone(conn, 'SELECT COUNT(*) as c FROM players')
         if row and row['c'] == 0:
             athletic_players = [
-                'Agirrezabala',
-                'Nico Williams',
-                'Iñaki Williams',
-                'Nolaskoain',
+                # Porteros
+                'Unai Simón',
+                'Álex Padilla',
+                # Defensas
+                'Unai Eguiluz',
+                'Andoni Gorosabel',
+                'Dani Vivian',
+                'Aitor Paredes',
                 'Yeray Álvarez',
-                'Vivian',
-                'Martón',
-                'Ruiz de Galarreta',
-                'Prados',
-                'Muniain',
-                'Olhats',
-                'Sancet',
-                'Berenguer',
-                'Guruzaga',
-                'AduAres',
-                'Etxebarria'
+                'Jesús Areso',
+                'Aymeric Laporte',
+                'Yuri Berchiche',
+                'Adama Boiro',
+                # Centrocampistas
+                'Mikel Vesga',
+                'Álex Berenguer',
+                'Oihan Sancet',
+                'Iñigo Lekue',
+                'Iñigo Ruiz de Galarreta',
+                'Mikel Jauregizar',
+                'Unai Gómez',
+                'Robert Navarro',
+                'Beñat Prados',
+                # Delanteros
+                'Iñaki Williams',
+                'Nico Williams',
+                'Gorka Guruzeta',
+                'Maroan Sannadi',
+                'Nico Serrano',
+                'Urko Izeta'
             ]
             for name in athletic_players:
                 try:
