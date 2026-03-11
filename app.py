@@ -108,6 +108,33 @@ def init_db():
                 );
             ''')
 
+        # Si no hay jugadores, agregar plantilla del Athletic Club
+        row = fetchone(conn, 'SELECT COUNT(*) as c FROM players')
+        if row and row['c'] == 0:
+            athletic_players = [
+                'Agirrezabala',
+                'Nico Williams',
+                'Iñaki Williams',
+                'Nolaskoain',
+                'Yeray Álvarez',
+                'Vivian',
+                'Martón',
+                'Ruiz de Galarreta',
+                'Prados',
+                'Muniain',
+                'Olhats',
+                'Sancet',
+                'Berenguer',
+                'Guruzaga',
+                'AduAres',
+                'Etxebarria'
+            ]
+            for name in athletic_players:
+                try:
+                    execute(conn, 'INSERT INTO players (name) VALUES (?)', (name,))
+                except Exception:
+                    pass  # si ya existe
+
 
 def fetchone(conn, sql, params=()):
     cur = conn.cursor() if USE_PG else conn
