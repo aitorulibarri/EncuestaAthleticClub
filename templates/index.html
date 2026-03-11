@@ -19,7 +19,14 @@
       <p>¿Quién ha sido el mejor jugador?</p>
     </div>
 
-    {% if not match %}
+    {% if db_error %}
+      <div class="no-match">
+        <span class="icon">⚠️</span>
+        <h2>Error de conexión</h2>
+        <p>No se pudo conectar a la base de datos. Configura DATABASE_URL en producción.</p>
+      </div>
+
+    {% elif not match %}
       <div class="no-match">
         <span class="icon">🔒</span>
         <h2>Votación cerrada</h2>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, make_response
 import os
 import sqlite3
 from functools import wraps
@@ -8,8 +8,21 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'cambia-esto-en-produccion')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 
+# Ruta simple para favicon - evita error 500
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
+
 # Detecta si estamos en producción (PostgreSQL) o local (SQLite)
-DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
+# Busca DATABASE_URL, POSTGRES_URL, STORAGE_URL, o cualquier variable que termine en _URL
+DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL') or os.environ.get('STORAGE_URL')
+if not DATABASE_URL:
+    # Busca variables tipo POSTGRES_XXX_URL o que contengan postgres
+    for key, value in os.environ.items():
+        if key.endswith('_URL') and 'postgres' in value.lower():
+            DATABASE_URL = value
+            break
+
 USE_PG = bool(DATABASE_URL)
 
 if USE_PG:
@@ -271,8 +284,17 @@ def toggle_match(match_id):
     return redirect(url_for('admin_panel'))
 
 
+# Error handler para problemas de base de datos
+@app.errorhandler(500)
+def handle_db_error(e):
+    return render_template('index.html', match=None, db_error=True), 500
+
+
 # Inicializar BD al arrancar (funciona en local y en Vercel serverless)
-init_db()
+try:
+    init_db()
+except Exception as e:
+    print(f"Error inicializando BD: {e}")
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
