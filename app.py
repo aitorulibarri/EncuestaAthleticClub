@@ -14,14 +14,18 @@ def favicon():
     return '', 204
 
 # Detecta si estamos en producción (PostgreSQL) o local (SQLite)
-# Busca DATABASE_URL, POSTGRES_URL, STORAGE_URL, o cualquier variable que termine en _URL
+# Vercel Postgres crea: POSTGRES_URL, POSTGRES_USER, POSTGRES_HOST, etc.
+# También puede crear: DATABASE_URL o STORAGE_URL
 DATABASE_URL = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL') or os.environ.get('STORAGE_URL')
-if not DATABASE_URL:
-    # Busca variables tipo POSTGRES_XXX_URL o que contengan postgres
-    for key, value in os.environ.items():
-        if key.endswith('_URL') and 'postgres' in value.lower():
-            DATABASE_URL = value
-            break
+
+# Si tenemos componentes de Postgres, construimos la URL
+POSTGRES_HOST = os.environ.get('POSTGRES_HOST')
+POSTGRES_USER = os.environ.get('POSTGRES_USER')
+POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+POSTGRES_DB = os.environ.get('POSTGRES_DB')
+
+if not DATABASE_URL and POSTGRES_HOST and POSTGRES_USER:
+    DATABASE_URL = f"postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}"
 
 USE_PG = bool(DATABASE_URL)
 
@@ -292,9 +296,13 @@ def handle_db_error(e):
 
 # Inicializar BD al arrancar (funciona en local y en Vercel serverless)
 try:
+    print(f"Inicializando BD... USE_PG={USE_PG}")
     init_db()
+    print("BD inicializada OK")
 except Exception as e:
     print(f"Error inicializando BD: {e}")
+    import traceback
+    traceback.print_exc()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
