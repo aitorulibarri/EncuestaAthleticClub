@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking de la Temporada</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-links">
+      <a href="/">Votar</a>
+      <a href="/ranking">Ranking</a>
+    </nav>
+
+    <div class="header">
+      <span class="trophy">🏆</span>
+      <h1>Ranking de la Temporada</h1>
+      <p>Clasificación acumulada</p>
+    </div>
+
+    <div class="stats-bar">
+      <strong>{{ total_partidos }}</strong> partidos jugados
+    </div>
+
+    {% if players %}
+      <ul class="ranking-list">
+        {% for player in players %}
+        <li class="ranking-item {% if loop.index == 1 and player.total_votos > 0 %}first{% endif %}">
+          <div class="rank-number">
+            {% if loop.index == 1 and player.total_votos > 0 %}🥇
+            {% elif loop.index == 2 and player.total_votos > 0 %}🥈
+            {% elif loop.index == 3 and player.total_votos > 0 %}🥉
+            {% else %}{{ loop.index }}{% endif %}
+          </div>
+          <div class="rank-name">{{ player.name }}</div>
+          <div class="rank-votes">
+            {{ player.total_votos }} <span>votos</span>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="no-match">
+        <span class="icon">📊</span>
+        <h2>Sin datos aún</h2>
+        <p>No hay jugadores registrados todavía.</p>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

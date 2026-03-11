@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - MVP Encuesta</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-links">
+      <a href="/">Inicio</a>
+      <a href="/ranking">Ranking</a>
+      <a href="/admin/logout">Cerrar sesión</a>
+    </nav>
+
+    <div class="header">
+      <span class="trophy">⚙️</span>
+      <h1>Panel de Administración</h1>
+    </div>
+
+    <!-- JUGADORES -->
+    <div class="admin-section">
+      <h2>👥 Jugadores</h2>
+
+      <form method="POST" action="/admin/jugador/add">
+        <div class="form-row">
+          <input type="text" name="name" placeholder="Nombre del jugador" required>
+          <button type="submit" class="btn-sm">Añadir</button>
+        </div>
+      </form>
+
+      <div style="margin-top: 12px;">
+        {% for player in players %}
+        <span class="player-tag">
+          {{ player.name }}
+          <form method="POST" action="/admin/jugador/delete/{{ player.id }}" style="display:inline">
+            <button type="submit" class="btn-danger" style="padding:2px 6px; font-size:12px;">✕</button>
+          </form>
+        </span>
+        {% else %}
+        <p style="color:#8a9bb0; font-size:14px;">No hay jugadores aún.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- NUEVO PARTIDO -->
+    <div class="admin-section">
+      <h2>⚽ Nuevo Partido</h2>
+
+      {% if open_match %}
+        <p style="color:#4ade80; font-size:14px; margin-bottom:12px;">
+          ✅ Votación abierta: <strong>vs {{ open_match.opponent }}</strong> ({{ open_match.date }})
+        </p>
+      {% endif %}
+
+      <form method="POST" action="/admin/partido/new">
+        <div class="form-row">
+          <input type="text" name="opponent" placeholder="Rival (ej: FC Barcelona)" required>
+          <input type="date" name="date" required style="max-width:150px;">
+          <button type="submit" class="btn-sm">Abrir</button>
+        </div>
+      </form>
+      <p style="color:#8a9bb0; font-size:12px; margin-top:8px;">
+        Al crear un partido nuevo, se cierra automáticamente el anterior.
+      </p>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="admin-section">
+      <h2>📋 Historial de Partidos</h2>
+
+      {% for item in match_stats %}
+      <div class="match-row {% if item.match.is_open %}is-open{% endif %}">
+        <div class="match-header">
+          <div>
+            <div class="match-title">vs {{ item.match.opponent }}</div>
+            <div class="match-date">{{ item.match.date }} · {{ item.total }} votos</div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            {% if item.match.is_open %}
+              <span class="open-badge">ABIERTA</span>
+            {% endif %}
+            <form method="POST" action="/admin/partido/{{ item.match.id }}/toggle">
+              <button type="submit" class="btn-toggle {% if item.match.is_open %}open{% else %}closed{% endif %}">
+                {% if item.match.is_open %}Cerrar{% else %}Abrir{% endif %}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {% if item.votes %}
+          {% for v in item.votes %}
+          <div class="vote-result">
+            <strong>{{ v.name }}</strong> — {{ v.votos }} votos
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="vote-result">Sin votos aún</div>
+        {% endif %}
+      </div>
+      {% else %}
+        <p style="color:#8a9bb0; font-size:14px;">No hay partidos registrados.</p>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MVP del Partido</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-links">
+      <a href="/">Votar</a>
+      <a href="/ranking">Ranking</a>
+    </nav>
+
+    <div class="header">
+      <span class="trophy">⚽</span>
+      <h1>MVP del Partido</h1>
+      <p>¿Quién ha sido el mejor jugador?</p>
+    </div>
+
+    {% if not match %}
+      <div class="no-match">
+        <span class="icon">🔒</span>
+        <h2>Votación cerrada</h2>
+        <p>Aún no hay ningún partido abierto para votar.</p>
+      </div>
+
+    {% elif already_voted %}
+      <div class="match-card">
+        <div class="vs">vs</div>
+        <div class="opponent">{{ match.opponent }}</div>
+        <div class="date">{{ match.date }}</div>
+      </div>
+
+      <div class="voted-box">
+        <span class="checkmark">✅</span>
+        <h2>¡Voto registrado!</h2>
+        <p>Has votado por</p>
+        <div class="voted-name">{{ voted_player.name }}</div>
+      </div>
+
+      <a href="/ranking" class="btn-primary">Ver clasificación</a>
+
+    {% else %}
+      <div class="match-card">
+        <div class="vs">vs</div>
+        <div class="opponent">{{ match.opponent }}</div>
+        <div class="date">{{ match.date }}</div>
+      </div>
+
+      <p class="section-title">Selecciona al MVP</p>
+
+      <form method="POST" action="/votar" id="voteForm">
+        <div class="players-grid">
+          {% for player in players %}
+          <button type="button" class="player-btn" data-id="{{ player.id }}"
+                  onclick="selectPlayer(this, '{{ player.id }}')">
+            {{ player.name }}
+          </button>
+          {% endfor %}
+        </div>
+
+        <input type="hidden" name="player_id" id="selectedPlayer">
+        <button type="submit" class="btn-primary" id="submitBtn" disabled>
+          Enviar voto
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <script>
+    function selectPlayer(btn, id) {
+      document.querySelectorAll('.player-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('selectedPlayer').value = id;
+      document.getElementById('submitBtn').disabled = false;
+    }
+  </script>
+</body>
+</html>
